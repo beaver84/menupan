@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <style>
+    *{box-sizing:border-box;}
+    body{margin:0;}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#e3e1da;font-family:'Pretendard',sans-serif;padding:40px 40px 64px;">
+
+  <!-- Header -->
+  <div style="max-width:1080px;margin:0 auto 28px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:3px;color:#9a8f7e;text-transform:uppercase;">Excel-Driven Menu Board · Template System</div>
+    <h1 style="font-family:'Nanum Myeongjo',serif;font-size:38px;font-weight:800;color:#26221d;margin:8px 0 6px;letter-spacing:-0.5px;">카페 메뉴판 템플릿 시스템</h1>
+    <p style="font-size:15px;color:#6f675b;margin:0;line-height:1.6;max-width:640px;">같은 Excel 데이터를 두고 <strong style="color:#3c372f;">배경·테두리 PNG</strong>만 교체합니다. 테마 4종 × 디바이스 4종에 맞춰 최적화된 반응형 화면을 미리 봅니다.</p>
+  </div>
+
+  <!-- Controls -->
+  <div style="max-width:1080px;margin:0 auto 22px;display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#9a8f7e;text-transform:uppercase;">테마 (CSS · PNG 세트)</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <sc-for list="{{ themeList }}" as="tp" hint-placeholder-count="4">
+          <button style="{{ tp.style }}" onClick="{{ tp.onClick }}">
+            <span style="display:flex;align-items:center;gap:7px;">
+              <span style="{{ tp.dotStyle }}"></span>
+              <span style="{{ tp.labelStyle }}">{{ tp.label }}</span>
+            </span>
+            <span style="{{ tp.koStyle }}">{{ tp.ko }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#9a8f7e;text-transform:uppercase;">디바이스</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <sc-for list="{{ deviceList }}" as="dp" hint-placeholder-count="4">
+          <button style="{{ dp.style }}" onClick="{{ dp.onClick }}">{{ dp.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div style="max-width:1080px;margin:0 auto;background:#d6d4cc;border-radius:14px;padding:36px 24px;display:flex;align-items:center;justify-content:center;min-height:720px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">
+    <div style="{{ clipStyle }}">
+      <div style="{{ innerStyle }}">
+        <div style="{{ bgLayerStyle }}"></div>
+        <div style="{{ contentStyle }}">
+          <div style="{{ eyebrowStyle }}">SPECIALTY COFFEE</div>
+          <div style="{{ storeStyle }}">빌런 커피</div>
+          <div style="{{ ruleStyle }}"></div>
+          <div style="{{ sheetRowStyle }}">
+            <span style="{{ sheetStyle }}">커피</span>
+            <span style="{{ sheetMetaStyle }}">ESPRESSO · MILK · BREW</span>
+          </div>
+
+          <sc-if value="{{ showPhoto }}" hint-placeholder-val="{{ true }}">
+            <div style="{{ photoStyle }}">
+              <span style="{{ photoLabelStyle }}">[ 원두 · 라떼아트 사진 슬롯 ]</span>
+            </div>
+          </sc-if>
+
+          <div style="{{ listStyle }}">
+            <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+              <div style="{{ it.wrapStyle }}">
+                <div style="{{ it.rowStyle }}">
+                  <span style="{{ it.nameStyle }}">{{ it.name }}</span>
+                  <sc-if value="{{ it.sold }}" hint-placeholder-val="{{ false }}">
+                    <span style="{{ it.badgeStyle }}">품절</span>
+                  </sc-if>
+                  <span style="{{ it.leaderStyle }}"></span>
+                  <span style="{{ it.priceStyle }}">{{ it.price }}</span>
+                </div>
+                <div style="{{ it.descStyle }}">{{ it.desc }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="{{ frameLayerStyle }}"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Caption -->
+  <div style="max-width:1080px;margin:18px auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <code style="font-family:'SFMono-Regular',Consolas,monospace;font-size:12px;background:#cfcdc5;color:#4a463d;padding:6px 10px;border-radius:6px;">{{ bgUrl }}</code>
+      <code style="font-family:'SFMono-Regular',Consolas,monospace;font-size:12px;background:#cfcdc5;color:#4a463d;padding:6px 10px;border-radius:6px;">{{ frameUrl }}</code>
+    </div>
+    <div style="font-size:12px;color:#8a8276;">{{ dimLabel }}</div>
+  </div>
+
+  <div style="max-width:1080px;margin:28px auto 0;border-top:1px solid #cbc9c1;padding-top:16px;font-size:12.5px;color:#8a8276;line-height:1.7;">
+    테마 4종 × 디바이스 4종 = <strong style="color:#5a5448;">배경 16 + 테두리 16</strong> PNG 에셋 (총 32개) · <code style="font-family:monospace;background:#cfcdc5;padding:2px 6px;border-radius:4px;">assets/&lt;테마&gt;/{bg,frame}-&lt;디바이스&gt;.png</code> · 테두리는 가운데가 투명한 오버레이라 배경 위에 겹쳐집니다.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1160,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { theme: 'light-olive', device: 'signage' };
+
+  THEMES = {
+    'light-olive': { label: 'Light Olive', ko: '라이트 올리브', text: '#33381f', sub: '#6e7350', accent: '#6f7637' },
+    'deep-green':  { label: 'Deep Green',  ko: '딥 그린',       text: '#f0ecd8', sub: '#a9bcab', accent: '#c8a24a' },
+    'cream':       { label: 'Cream',       ko: '크림',          text: '#3c3120', sub: '#897354', accent: '#b5602f' },
+    'beige':       { label: 'Beige',       ko: '베이지',        text: '#352a1a', sub: '#827049', accent: '#7a8246' },
+  };
+
+  DEVICES = {
+    'signage':     { label: '사이니지 (세로)', w: 1080, h: 1920 },
+    'tablet-land': { label: '태블릿 (가로)',   w: 1920, h: 1440 },
+    'tablet-port': { label: '태블릿 (세로)',   w: 1440, h: 1920 },
+    'mobile':      { label: '모바일',          w: 1080, h: 2160 },
+  };
+
+  ITEMS = [
+    { name: '아메리카노',          price: 4500, desc: '깔끔한 산미의 싱글 오리진 에스프레소', sold: false },
+    { name: '카페라떼',            price: 5000, desc: '고소한 우유와 에스프레소의 균형',     sold: false },
+    { name: '플랫 화이트',         price: 5500, desc: '진한 리스트레토 베이스, 벨벳 폼',      sold: false },
+    { name: '디카페인 아메리카노', price: 5000, desc: '스위스 워터 디카페인',                sold: true  },
+    { name: '바닐라 빈 라떼',      price: 6000, desc: '마다가스카르 바닐라 빈',              sold: false },
+    { name: '콜드브루',            price: 5500, desc: '12시간 저온 추출, 부드러운 바디',      sold: false },
+  ];
+
+  setTheme(k) { this.setState({ theme: k }); }
+  setDevice(k) { this.setState({ device: k }); }
+
+  hexA(hex, a) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  renderVals() {
+    const px = n => Math.round(n) + 'px';
+    const t = this.THEMES[this.state.theme];
+    const d = this.DEVICES[this.state.device];
+    const u = Math.min(d.w, d.h);
+
+    const stageW = 1000, stageH = 660;
+    const scale = Math.min(stageW / d.w, stageH / d.h);
+    const boxW = d.w * scale, boxH = d.h * scale;
+    const pad = u * 0.085;
+    const cols = this.state.device === 'tablet-land' ? 2 : 1;
+    const showPhoto = this.state.device !== 'tablet-land';
+
+    const f = {
+      eyebrow: u * 0.0175, store: u * 0.058, sheet: u * 0.030,
+      name: u * 0.030, price: u * 0.030, desc: u * 0.0185,
+    };
+
+    const clipStyle = {
+      position: 'relative', width: px(boxW), height: px(boxH),
+      borderRadius: '2px', overflow: 'hidden',
+      boxShadow: '0 24px 64px rgba(0,0,0,0.30)',
+    };
+    const innerStyle = {
+      position: 'absolute', top: 0, left: 0, width: px(d.w), height: px(d.h),
+      transformOrigin: 'top left', transform: `scale(${scale})`,
+    };
+    const contentStyle = {
+      position: 'absolute', inset: 0, padding: px(pad),
+      display: 'flex', flexDirection: 'column', boxSizing: 'border-box',
+    };
+
+    const eyebrowStyle = {
+      fontFamily: "'Pretendard',sans-serif", fontSize: px(f.eyebrow),
+      letterSpacing: px(f.eyebrow * 0.42), color: t.accent, fontWeight: 700,
+    };
+    const storeStyle = {
+      fontFamily: "'Nanum Myeongjo',serif", fontSize: px(f.store),
+      color: t.text, lineHeight: 1.0, fontWeight: 800, marginTop: px(u * 0.014),
+    };
+    const ruleStyle = {
+      height: '2px', width: px(u * 0.11), background: t.accent,
+      opacity: 0.85, margin: `${px(u * 0.030)} 0 ${px(u * 0.022)}`,
+    };
+    const sheetRowStyle = { display: 'flex', alignItems: 'baseline', gap: px(u * 0.020) };
+    const sheetStyle = {
+      fontFamily: "'Nanum Myeongjo',serif", fontSize: px(f.sheet),
+      color: t.text, fontWeight: 700,
+    };
+    const sheetMetaStyle = {
+      fontFamily: "'Pretendard',sans-serif", fontSize: px(f.eyebrow * 0.85),
+      letterSpacing: px(f.eyebrow * 0.30), color: t.sub, fontWeight: 600,
+    };
+
+    const photoStyle = {
+      height: px(u * 0.185), marginTop: px(u * 0.038),
+      border: `1px solid ${this.hexA(t.accent, 0.55)}`, borderRadius: '2px',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: `repeating-linear-gradient(135deg, ${this.hexA(t.text, 0.045)} 0 ${px(u * 0.018)}, transparent ${px(u * 0.018)} ${px(u * 0.036)})`,
+    };
+    const photoLabelStyle = {
+      fontFamily: "'SFMono-Regular',Consolas,monospace", fontSize: px(f.desc * 0.92),
+      color: t.sub, letterSpacing: '1px',
+    };
+
+    const listStyle = {
+      display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      columnGap: px(u * 0.075), rowGap: px(u * 0.032),
+      marginTop: px(showPhoto ? u * 0.040 : u * 0.050),
+    };
+
+    const items = this.ITEMS.map(it => ({
+      name: it.name,
+      price: it.price.toLocaleString('ko-KR') + '원',
+      desc: it.desc,
+      sold: it.sold,
+      wrapStyle: { display: 'flex', flexDirection: 'column', opacity: it.sold ? 0.5 : 1 },
+      rowStyle: { display: 'flex', alignItems: 'baseline', gap: px(u * 0.012) },
+      nameStyle: {
+        fontFamily: "'Pretendard',sans-serif", fontSize: px(f.name), fontWeight: 600,
+        color: it.sold ? t.sub : t.text, textDecoration: it.sold ? 'line-through' : 'none',
+        whiteSpace: 'nowrap',
+      },
+      badgeStyle: {
+        fontFamily: "'Pretendard',sans-serif", fontSize: px(f.desc * 0.82), fontWeight: 700,
+        color: '#fff', background: t.accent, borderRadius: '999px',
+        padding: `${px(u * 0.003)} ${px(u * 0.012)}`, whiteSpace: 'nowrap',
+      },
+      leaderStyle: {
+        flex: 1, alignSelf: 'center',
+        borderBottom: `1px dotted ${this.hexA(t.sub, 0.55)}`,
+        margin: `0 ${px(u * 0.006)}`,
+      },
+      priceStyle: {
+        fontFamily: "'Pretendard',sans-serif", fontSize: px(f.price), fontWeight: 700,
+        color: it.sold ? t.sub : t.accent, whiteSpace: 'nowrap',
+      },
+      descStyle: {
+        fontFamily: "'Pretendard',sans-serif", fontSize: px(f.desc),
+        color: t.sub, marginTop: px(u * 0.007), lineHeight: 1.3,
+      },
+    }));
+
+    const themeList = Object.entries(this.THEMES).map(([k, v]) => {
+      const active = k === this.state.theme;
+      return {
+        key: k, label: v.label, ko: v.ko, onClick: () => this.setTheme(k),
+        style: {
+          display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'flex-start',
+          padding: '9px 13px', borderRadius: '9px', cursor: 'pointer', minWidth: '128px',
+          border: active ? `1.5px solid ${v.accent}` : '1.5px solid #d2d0c8',
+          background: active ? '#fbfaf7' : '#edece7',
+          boxShadow: active ? `0 2px 10px ${this.hexA(v.accent, 0.22)}` : 'none',
+          transition: 'all .15s',
+        },
+        dotStyle: { width: '10px', height: '10px', borderRadius: '50%', background: v.accent, flex: 'none' },
+        labelStyle: { fontSize: '13.5px', fontWeight: 700, color: active ? '#2a261f' : '#5b554b' },
+        koStyle: { fontSize: '11px', color: active ? '#8a8071' : '#9a9486' },
+      };
+    });
+
+    const deviceList = Object.entries(this.DEVICES).map(([k, v]) => {
+      const active = k === this.state.device;
+      return {
+        key: k, label: v.label, onClick: () => this.setDevice(k),
+        style: {
+          padding: '9px 15px', borderRadius: '9px', cursor: 'pointer',
+          fontSize: '13px', fontWeight: 600, fontFamily: "'Pretendard',sans-serif",
+          border: active ? '1.5px solid #2a2a2a' : '1.5px solid #d2d0c8',
+          background: active ? '#2a2722' : '#edece7',
+          color: active ? '#f3efe7' : '#5b554b', transition: 'all .15s',
+        },
+      };
+    });
+
+    const bgUrl = `assets/${this.state.theme}/bg-${this.state.device}.png`;
+    const frameUrl = `assets/${this.state.theme}/frame-${this.state.device}.png`;
+
+    return {
+      bgUrl, frameUrl,
+      bgLayerStyle: {
+        position: 'absolute', inset: 0,
+        backgroundImage: `url("${bgUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center',
+      },
+      frameLayerStyle: {
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: `url("${frameUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center',
+      },
+      dimLabel: `${d.w} × ${d.h}px`,
+      clipStyle, innerStyle, contentStyle,
+      eyebrowStyle, storeStyle, ruleStyle, sheetRowStyle, sheetStyle, sheetMetaStyle,
+      showPhoto, photoStyle, photoLabelStyle, listStyle, items,
+      themeList, deviceList,
+    };
+  }
+}
+</script>
+</body>
+</html>

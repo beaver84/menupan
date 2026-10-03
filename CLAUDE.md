@@ -16,7 +16,7 @@ Excel 파일 하나(`data/menu.xlsx`)로 카페 메뉴판 화면을 구동한다
 
 ## 현재 상태
 
-그린필드. 아직 `package.json`, `server.mjs`, `public/` 이 없다. 위 문서와 `design/`, `data/menu.xlsx`만 존재한다. 코드는 아래 TDD 프로세스로 처음부터 만든다.
+`TDD-IMPLEMENTS.md`의 마일스톤 M1~M7(파싱, API, 실시간 갱신, 렌더링, 테마, 자동 전환, 카테고리)이 구현되어 있다. 새 작업도 같은 TDD 프로세스로 진행하며, 진행 단위는 마일스톤이고 `/tdd-red` → `/tdd-green` → `/tdd-refactor` 명령을 쓴다.
 
 ## 명령어
 
@@ -24,7 +24,7 @@ Excel 파일 하나(`data/menu.xlsx`)로 카페 메뉴판 화면을 구동한다
 
 ```bash
 npm install                # 의존성 설치
-npm start                  # 서버 실행 → http://localhost:3000
+npm start                  # 서버 실행 → http://localhost:3000 (`data/menu.xlsx`)
 npm test                   # 전체 테스트 (node --test)
 node --test test/parse.test.mjs                          # 파일 1개
 node --test --test-name-pattern="품절" test/parse.test.mjs  # 테스트 1개(이름 패턴)
@@ -43,13 +43,13 @@ menu.xlsx 저장 → chokidar(300ms 디바운스) → server.mjs 재파싱(JSON)
               → SSE `menu-updated` → 브라우저가 GET /api/menu → 재렌더
 ```
 
-- **서버 (`server.mjs`)**: 시트 → JSON 파싱, 파일 감시, SSE 푸시. 파싱 로직은 순수 함수로 분리해 서버/파일시스템 없이 테스트 가능해야 한다.
-- **클라이언트 (`public/`)**: SSE 수신 후 `/api/menu`를 다시 가져와 렌더링. SSE는 "변경됨" 신호만 보내고 데이터는 API로 가져온다(읽기 전용 단방향이라 WebSocket 불필요).
+- **서버 (`src/app.mjs`의 `startServer`, 진입점 `server.mjs`)**: 시트 → JSON 파싱(`src/parse.mjs`, 순수 함수), 파일 감시(`src/watch.mjs`), SSE 푸시(`src/sse.mjs`). 경로·포트·`readWorkbook`·`watch`·`logger`를 주입받아 임시 포트로 테스트한다. 재로드 실패 시 마지막 정상 데이터를 유지한다.
+- **클라이언트 (`public/`)**: `*.mjs`는 순수 로직(테스트 대상), `client.js`는 브라우저 연결 코드. SSE 수신 후 `/api/menu`를 다시 가져와 렌더링. SSE는 "변경됨" 신호만 보내고 데이터는 API로 가져온다(읽기 전용 단방향이라 WebSocket 불필요).
 - **Excel 계약** (변경 시 PRD/TRD/테스트 동시 갱신):
   - `_` 접두사 시트는 페이지에서 제외. `_설정` 시트(항목/값)에서 `매장명`, `테마`, `자동전환초`를 읽는다.
   - 메뉴 시트 헤더: `메뉴명 | 가격 | 설명 | 품절 | 카테고리`. 가격은 숫자만(화면에서 `원` 표기), 품절은 `Y` 또는 빈칸.
 - **테마 시스템**: 같은 데이터에 테마(CSS 변수 + PNG 에셋)만 교체. `design/project/assets/<테마>/{bg,frame}-<디바이스>.png` — 배경 + 가운데가 투명한 테두리 오버레이 2장 구조. 디바이스 4종: `signage`(1080×1920), `tablet-land`(1920×1440), `tablet-port`(1440×1920), `mobile`(1080×2160). 레이아웃 치수는 `min(w,h)` 기준 비율(`u`)로 스케일한다.
-- 에셋 디렉터리에는 요구사항의 `cafe-dark`, `bistro-light` 외에 디자인 번들의 테마(`light-olive`, `deep-green`, `cream`, `beige`, `forest-*`)도 있다. 지원 테마 목록은 TRD에서 확정한다.
+- 에셋은 복사하지 않고 `design/project/assets`를 `/assets`로 정적 제공한다. 지원 테마 8종은 `public/themes.mjs`가 정의하고 에셋 디렉터리와 일치해야 한다(테스트가 검증).
 
 ## 개발 방법론: Kent Beck TDD + Tidy First (증강 코딩)
 

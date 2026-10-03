@@ -19,26 +19,30 @@
 
 보안 스캐너(Snyk 등)의 SheetJS 오탐은 공식적으로 무시 권장.
 
-## 2. 디렉터리 구조 (목표)
+## 2. 디렉터리 구조
 
 ```text
 ├── package.json
-├── server.mjs              # 진입점: 조립(wiring)만 담당
+├── server.mjs              # 진입점: startServer() 호출만
 ├── src/
+│   ├── app.mjs             # startServer: 캐시, /api/menu, /events, 정적 제공, 감시 연결
 │   ├── parse.mjs           # 순수 함수: workbook → { settings, pages }
-│   ├── watch.mjs           # chokidar + 디바운스 (주입 가능)
+│   ├── read-workbook.mjs   # SheetJS 파일 읽기(ESM에서 fs 설정)
+│   ├── watch.mjs           # chokidar + 디바운스(300ms)
 │   └── sse.mjs             # SSE 클라이언트 관리/브로드캐스트
 ├── data/menu.xlsx
 ├── public/
-│   ├── index.html
-│   ├── client.js           # SSE 수신 + 렌더링
-│   ├── layout.mjs          # 순수 함수: 디바이스 치수 → 스타일 수치
-│   └── templates/          # board-grid.css + 테마별 CSS
-├── test/                   # *.test.mjs
-└── design/                 # 핸드오프 번들(참조 전용)
+│   ├── index.html, client.js          # 브라우저 연결 코드(테스트 대상 아님)
+│   ├── layout.mjs                     # 디바이스 프리셋, 치수 계산, pickDevice
+│   ├── render.mjs, group.mjs          # 순수 렌더링(HTML 문자열), 카테고리 그룹
+│   ├── themes.mjs                     # 테마 목록, 에셋 URL
+│   ├── menu-client.mjs, rotate.mjs    # fetch+SSE 클라이언트, 자동 전환
+│   └── templates/                     # board-grid.css, themes.css
+├── test/                   # *.test.mjs (node:test)
+└── design/                 # 핸드오프 번들. design/project/assets 는 /assets 로 정적 제공
 ```
 
-구조는 TDD 진행 중 필요에 따라 조정 가능. 단 **파싱·레이아웃 계산은 I/O 없는 순수 함수**로 유지한다.
+파싱·레이아웃·렌더링·회전은 I/O 없는 순수 함수(또는 주입 가능한 타이머)로 유지한다.
 
 ## 3. 데이터 계약
 
@@ -88,12 +92,12 @@ SSE를 쓰는 이유: 표시는 읽기 전용 단방향이므로 WebSocket 불�
 ## 5. 프론트엔드 / 테마
 
 - 레이어 구성: `배경 PNG` → `콘텐츠` → `테두리 PNG(가운데 투명, pointer-events: none)`.
-- 에셋 경로: `assets/<테마>/{bg,frame}-<디바이스>.png` (테마 × 디바이스 × 2). 서버가 정적 제공할 위치는 구현 시 확정(`public/assets/` 로 `design/project/assets/` 복사 또는 정적 매핑).
+- 에셋 경로: `/assets/<테마>/{bg,frame}-<디바이스>.png` (테마 × 디바이스 × 2). 서버가 `design/project/assets/`를 `/assets`로 정적 제공한다(복사하지 않음, `startServer({ assetsDir })`로 변경 가능).
 - 디바이스 프리셋(px): `signage` 1080×1920, `tablet-land` 1920×1440, `tablet-port` 1440×1920, `mobile` 1080×2160.
 - 기준 단위 `u = min(w, h)`; 패딩 `u×0.085`, 폰트 비율(eyebrow 0.0175, store 0.058, sheet/name/price 0.030, desc 0.0185). 값은 `design/project/메뉴판 템플릿 시스템.dc.html` 에서 가져온다.
 - `tablet-land`: 메뉴 2열, 사진 슬롯 숨김. 그 외 1열 + 사진 슬롯(자리표시자).
 - 폰트: Pretendard(본문), Nanum Myeongjo(제목/매장명).
-- 테마 값(예): `light-olive`, `deep-green`, `cream`, `beige`(디자인 번들), `cafe-dark`, `bistro-light`(요구사항 문서). **최종 지원 목록과 `_설정`의 값 이름은 구현 시 확정**하고 이 문서를 갱신한다.
+- 지원 테마 8종: `cafe-dark`(기본), `bistro-light`, `light-olive`, `deep-green`, `cream`, `beige`, `forest-dark`, `forest-light`. 알 수 없는 값은 기본 테마로 대체. 색상 변수는 `public/templates/themes.css`(디자인 번들에 색이 있는 4종 외에는 임의 값이므로 디자인 확정 필요).
 - `자동전환초 > 0`이면 클라이언트 타이머로 페이지 순환. 데이터 갱신 시 현재 페이지 인덱스를 유지(범위 초과 시 보정).
 - 품절 스타일: 취소선 + opacity 0.5 + "품절" 배지.
 
@@ -113,7 +117,7 @@ SSE를 쓰는 이유: 표시는 읽기 전용 단방향이므로 WebSocket 불�
 - 시간·파일 경로·포트는 의존성 주입.
 - `npm test` = `node --test`, 단일 테스트: `node --test --test-name-pattern="<이름>" <파일>`.
 
-## 7. 구현 순서 (제안, 각 항목 = Red→Green→Refactor 반복)
+## 7. 구현 순서 (진행 상태는 [TDD-IMPLEMENTS.md](TDD-IMPLEMENTS.md), M1~M7 완료)
 
 1. `parse.mjs`: 시트 → pages (헤더 매핑, `_` 시트 제외)
 2. `parse.mjs`: `_설정` → settings (기본값 포함), 품절/가격 규칙, 잘못된 입력 처리

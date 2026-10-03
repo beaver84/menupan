@@ -140,3 +140,18 @@ test('autoRotateSec는 숫자로 변환된다', () => {
 
   assert.strictEqual(settings.autoRotateSec, 15);
 });
+
+test('열 순서가 달라도 헤더명으로 매핑된다', () => {
+  const wb = buildWorkbook({
+    커피: [
+      ['카테고리', '품절', '가격', '메뉴명', '설명'],
+      ['에스프레소', 'Y', 5000, '디카페인 아메리카노', '스위스 워터'],
+    ],
+  });
+
+  const { pages } = parseWorkbook(wb);
+
+  assert.deepEqual(pages[0].items, [
+    { name: '디카페인 아메리카노', price: 5000, description: '스위스 워터', soldOut: true, category: '에스프레소' },
+  ]);
+});

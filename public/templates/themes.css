@@ -1,0 +1,9 @@
+/* 테마 색상 변수. 배경/테두리 PNG는 렌더링 시 assets/<테마>/ 에서 로드된다. */
+.theme-light-olive { --text: #33381f; --sub: #6e7350; --accent: #6f7637; }
+.theme-deep-green  { --text: #f0ecd8; --sub: #a9bcab; --accent: #c8a24a; }
+.theme-cream       { --text: #3c3120; --sub: #897354; --accent: #b5602f; }
+.theme-beige       { --text: #352a1a; --sub: #827049; --accent: #7a8246; }
+.theme-cafe-dark   { --text: #f3e9d8; --sub: #b9a98f; --accent: #e0a23a; }
+.theme-bistro-light { --text: #2b2420; --sub: #7d6f66; --accent: #a8402f; }
+.theme-forest-dark { --text: #e8efe3; --sub: #9fb59f; --accent: #8fc47a; }
+.theme-forest-light { --text: #263321; --sub: #6a7d63; --accent: #4f8a3c; }

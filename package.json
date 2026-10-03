@@ -8,6 +8,8 @@
     "test": "node --test"
   },
   "dependencies": {
+    "chokidar": "^5.0.0",
+    "express": "^5.2.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

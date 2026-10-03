@@ -4,6 +4,14 @@ const SETTINGS_SHEET = '_설정';
 const EXCLUDED_SHEET_PREFIX = '_';
 const SOLD_OUT_MARK = 'Y';
 
+const ITEM_HEADERS = {
+  name: '메뉴명',
+  price: '가격',
+  description: '설명',
+  soldOut: '품절',
+  category: '카테고리',
+};
+
 const SETTING_KEYS = {
   storeName: '매장명',
   theme: '테마',
@@ -52,16 +60,31 @@ function parseSettings(rows) {
 }
 
 function parseItems(rows) {
+  const columns = indexColumns(rows[0] ?? []);
   const items = [];
 
-  for (const [name, price, description, soldOut, category] of dataRows(rows)) {
-    const parsedPrice = parsePrice(price);
+  for (const row of dataRows(rows)) {
+    const cell = (field) => row[columns[field]] ?? '';
+    const name = cell('name');
+    const parsedPrice = parsePrice(cell('price'));
     if (!name || parsedPrice === null) continue;
 
-    items.push({ name, price: parsedPrice, description, soldOut: isSoldOut(soldOut), category });
+    items.push({
+      name,
+      price: parsedPrice,
+      description: cell('description'),
+      soldOut: isSoldOut(cell('soldOut')),
+      category: cell('category'),
+    });
   }
 
   return items;
+}
+
+function indexColumns(headerRow) {
+  return Object.fromEntries(
+    Object.entries(ITEM_HEADERS).map(([field, header]) => [field, headerRow.indexOf(header)]),
+  );
 }
 
 function parsePrice(value) {

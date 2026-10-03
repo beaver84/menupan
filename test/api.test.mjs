@@ -107,6 +107,15 @@ test('서버 시작 시 파일이 없으면 파일 경로가 담긴 명확한 �
   );
 });
 
+test('포트가 이미 사용 중이면 EADDRINUSE 에러로 실패한다', async (t) => {
+  const { server } = await setup(t);
+
+  await assert.rejects(
+    startServer({ port: server.port, logger: silentLogger }),
+    (err) => err.code === 'EADDRINUSE',
+  );
+});
+
 test('GET /가 public/index.html을 반환한다', async (t) => {
   const { url } = await setup(t);
 

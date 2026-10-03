@@ -39,8 +39,8 @@ export async function startServer({
   app.use(express.static(publicDir));
 
   const httpServer = await new Promise((resolve, reject) => {
-    const server = app.listen(port, () => resolve(server));
-    server.on('error', reject);
+    // Express 5: 리스닝 실패 시 에러가 콜백으로 전달된다(성공 시 인자 없음).
+    const server = app.listen(port, (err) => (err ? reject(err) : resolve(server)));
   });
 
   const reload = async () => {
